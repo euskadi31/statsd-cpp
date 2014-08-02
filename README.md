@@ -48,14 +48,7 @@ int main(int argc, char const *argv[])
 Documentation
 -------------
 
-* statsd::open(std::string `host`[, int16_t `port`])
-* statsd::timing(std::string `key`, int64_t `value`[, float `sample_rate` = `1.0`])
-* statsd::increment(std::string `key`[, float `sample_rate` = `1.0`])
-* statsd::decrement(std::string `key`[, float `sample_rate` = `1.0`])
-* statsd::count(std::string `key`, int64_t `value`[, float `sample_rate` = `1.0`])
-* statsd::gauge(std::string `key`, int64_t `value`[, float `sample_rate` = `1.0`])
-* statsd::set(std::string `key`, int64_t `value`[, float `sample_rate` = `1.0`])
-* statsd::close()
+see the [statsd.hpp](include/statsd.hpp)
 
 License
 -------
