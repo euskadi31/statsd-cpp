@@ -3,18 +3,20 @@ compiler:
     - clang
     - gcc
 before_install:
-    - sudo apt-get install python-software-properties
+    - sudo apt-get -qq install python-software-properties
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get update -q
-    - sudo apt-get install gcc-4.8 g++-4.8
+    - sudo apt-get -qq update
+    - sudo apt-get -qq install gcc-4.8 g++-4.8
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
     - sudo apt-get -qq install valgrind
+    - sudo apt-get -qq install cppcheck
     - $CXX --version
 env:
     - STATSD_COMPILE_MODE=Debug
     - STATSD_COMPILE_MODE=Release
 script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
+after_script: make lint
 os:
     - linux
     - osx
