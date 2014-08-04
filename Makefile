@@ -20,6 +20,9 @@ test: build
 install: build
 	@cd build/${STATSD_COMPILE_MODE}; make install
 
+lint:
+	@cppcheck --std=c++11 ./src/* include/* test/*
+
 clean:
 	@rm -rf build
 
