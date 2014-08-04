@@ -112,6 +112,13 @@ public:
         const std::string& unit
     );
 
+    /**
+     * Get version
+     *
+     * @return The string of version
+     */
+    static const char* version();
+
 private:
 
     struct statsd_t

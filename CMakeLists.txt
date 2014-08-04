@@ -15,6 +15,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
+# get git tag
+execute_process(COMMAND git describe --always --tag OUTPUT_VARIABLE tag_version OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(STATSD_VERSION ${tag_version})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp @ONLY)
+
 # enable valgrind
 set(CMAKE_MEMORYCHECK_COMMAND valgrind)
 set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 -v --track-origins=yes --leak-check=full --show-reachable=yes --trace-children=yes --child-silent-after-fork=yes -q")
@@ -29,8 +34,8 @@ add_definitions(
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(statsd SHARED src/statsd.cpp include/statsd.hpp)
-add_library(statsd_static STATIC src/statsd.cpp include/statsd.hpp)
+add_library(statsd SHARED src/statsd.cpp include/statsd.hpp include/version.hpp)
+add_library(statsd_static STATIC src/statsd.cpp include/statsd.hpp include/version.hpp)
 
 add_executable(
     statsd-test

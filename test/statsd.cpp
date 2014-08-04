@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 #define test_assert_equal(A, B) \
     assert(A == B);
@@ -81,6 +82,8 @@ int main(int argc, char const *argv[])
 
         ::close(sockfd);
     });
+
+    std::cout << "StatsD Version : " << statsd::version() << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 

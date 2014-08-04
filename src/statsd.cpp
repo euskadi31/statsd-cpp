@@ -12,6 +12,7 @@
 #include <netdb.h>
 #include <time.h>
 #include <unistd.h>
+#include <version.hpp>
 #include <statsd.hpp>
 #include <cstring>
 #include <cstdlib>
@@ -187,4 +188,9 @@ std::string statsd::prepare(
     }
 
     return out.str();
+}
+
+const char* statsd::version()
+{
+    return STATSD_VERSION;
 }
