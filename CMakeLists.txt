@@ -17,6 +17,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
 # get git tag
 execute_process(COMMAND git describe --always --tag OUTPUT_VARIABLE tag_version OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(SUBSTRING ${tag_version} 1 -1 tag_version)
 set(STATSD_VERSION ${tag_version})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp @ONLY)
 
