@@ -17,6 +17,9 @@
 #include <thread>
 #include <chrono>
 
+#define test_assert_equal(A, B) \
+    assert(A == B);
+
 int main(int argc, char const *argv[])
 {
     /* Sample UDP server */
@@ -83,11 +86,25 @@ int main(int argc, char const *argv[])
 
     statsd::open("127.0.0.1");
 
-    assert(statsd::normalize("test.server@http:error|404") == "test.server.http.error.404");
+    test_assert_equal(
+        statsd::normalize("test.server@http:error|404"),
+        "test.server.http.error.404"
+    );
 
-    assert(statsd::prepare("test.server@http:error|404", 1, 1, "c") == "test.server.http.error.404:1|c");
-    assert(statsd::prepare("test.server@http:error|404", -1, 1, "c") == "test.server.http.error.404:-1|c");
-    assert(statsd::prepare("test.server@http:error|404", 1, 0.5, "c") == "test.server.http.error.404:1|c|@0.5");
+    test_assert_equal(
+        statsd::prepare("test.server@http:error|404", 1, 1, "c"),
+        "test.server.http.error.404:1|c"
+    );
+
+    test_assert_equal(
+        statsd::prepare("test.server@http:error|404", -1, 1, "c"),
+        "test.server.http.error.404:-1|c"
+    );
+
+    test_assert_equal(
+        statsd::prepare("test.server@http:error|404", 1, 0.5, "c"),
+        "test.server.http.error.404:1|c|@0.5"
+    );
 
     statsd::timing("test.site.homepage.load", 1500);
 

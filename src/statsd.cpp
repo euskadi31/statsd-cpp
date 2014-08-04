@@ -6,17 +6,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-#include <statsd.hpp>
-#include <cstring>
-#include <cstdlib>
-#include <sstream>
-#include <iomanip>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <time.h>
 #include <unistd.h>
+#include <statsd.hpp>
+#include <cstring>
+#include <cstdlib>
+#include <sstream>
+#include <iomanip>
 
 statsd::statsd_t statsd::info;
 
@@ -24,6 +24,7 @@ void statsd::open(const std::string& host, int16_t port)
 {
     if (info.sock == -1)
     {
+
         if ((info.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
         {
             statsd_error("StatsD: fail socket");
@@ -107,14 +108,19 @@ void statsd::close()
     }
 }
 
-void statsd::send(const std::string& key, const int64_t value, const float sample_rate, const std::string& unit)
+void statsd::send(
+    const std::string& key,
+    const int64_t value,
+    const float sample_rate,
+    const std::string& unit
+)
 {
     if (info.sock == -1)
     {
         return;
     }
 
-    if (!should_send(sample_rate))
+    if (should_send(sample_rate) == false)
     {
         return;
     }
@@ -165,7 +171,12 @@ std::string statsd::normalize(const std::string& key)
     return retval;
 }
 
-std::string statsd::prepare(const std::string& key, const int64_t value, const float sample_rate, const std::string& unit)
+std::string statsd::prepare(
+    const std::string& key,
+    const int64_t value,
+    const float sample_rate,
+    const std::string& unit
+)
 {
     std::ostringstream out;
     out << normalize(key) << ":" << value << "|" << unit;

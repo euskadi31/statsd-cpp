@@ -105,14 +105,20 @@ public:
      * @param unit          The unit value
      * @return              The message
      */
-    static std::string prepare(const std::string& key, const int64_t value, const float sample_rate, const std::string& unit);
+    static std::string prepare(
+        const std::string& key,
+        const int64_t value,
+        const float sample_rate,
+        const std::string& unit
+    );
 
 private:
 
-    typedef struct {
+    struct statsd_t
+    {
         struct sockaddr_in server;
         int sock = -1;
-    } statsd_t;
+    };
 
     static statsd_t info;
 
@@ -124,7 +130,12 @@ private:
      * @param sample_rate   The rate (0-1) for sampling.
      * @param unit          The unit value
      */
-    static void send(const std::string& key, const int64_t value, const float sample_rate, const std::string& unit);
+    static void send(
+        const std::string& key,
+        const int64_t value,
+        const float sample_rate,
+        const std::string& unit
+    );
 
     /**
      *
