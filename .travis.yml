@@ -9,6 +9,7 @@ before_install:
     - sudo apt-get install gcc-4.8
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
     - sudo apt-get -qq install valgrind
+    - gcc --version
 script: make test
 os:
     - linux
