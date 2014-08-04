@@ -37,7 +37,7 @@ add_executable(
     test/statsd.cpp
 )
 
-target_link_libraries(statsd-test statsd)
+target_link_libraries(statsd-test statsd pthread)
 
 enable_testing()
 
