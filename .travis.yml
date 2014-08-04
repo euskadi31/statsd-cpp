@@ -11,7 +11,10 @@ before_install:
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
     - sudo apt-get -qq install valgrind
     - $CXX --version
-script: make test
+env:
+    - STATSD_COMPILE_MODE=Debug
+    - STATSD_COMPILE_MODE=Release
+script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
 os:
     - linux
     - osx
