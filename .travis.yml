@@ -2,7 +2,7 @@ language: cpp
 compiler:
     - clang
     - gcc
-before_script:
+before_install:
     - sudo apt-get install python-software-properties
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update -q
