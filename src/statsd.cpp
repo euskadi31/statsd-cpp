@@ -109,6 +109,11 @@ void statsd::close()
 
 void statsd::send(const std::string& key, const int64_t value, const float sample_rate, const std::string& unit)
 {
+    if (info.sock == -1)
+    {
+        return;
+    }
+
     if (!should_send(sample_rate))
     {
         return;
