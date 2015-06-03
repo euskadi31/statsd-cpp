@@ -46,7 +46,7 @@ void statsd::open(const std::string& host, int16_t port)
 
         int error;
 
-        if ((error = getaddrinfo(host.c_str(), NULL, &hints, &result)))
+        if ((error = getaddrinfo(host.c_str(), nullptr, &hints, &result)))
         {
             statsd_error("StatsD: " + gai_strerror(error));
             return;
@@ -66,7 +66,7 @@ void statsd::open(const std::string& host, int16_t port)
             return;
         }
 
-        srandom(time(NULL));
+        srandom(static_cast<unsigned int>(time(nullptr)));
     }
 }
 
@@ -145,7 +145,7 @@ bool statsd::should_send(const float sample_rate)
 {
     if (sample_rate < 1.0)
     {
-        return (sample_rate > ((float)random() / RAND_MAX));
+        return (sample_rate > static_cast<float>(random() / RAND_MAX));
     }
     else
     {

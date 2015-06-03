@@ -25,7 +25,8 @@ int main(int argc, char const *argv[])
 {
     /* Sample UDP server */
     std::thread server([]() {
-        int sockfd, n;
+        int sockfd;
+        ssize_t n;
         struct sockaddr_in servaddr, cliaddr;
         socklen_t len;
         char mesg[1000];

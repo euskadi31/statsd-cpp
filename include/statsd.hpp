@@ -123,7 +123,7 @@ private:
 
     struct statsd_t
     {
-        struct sockaddr_in server;
+        struct sockaddr_in server = {};
         int sock = -1;
     };
 
