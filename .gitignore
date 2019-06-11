@@ -10,3 +10,4 @@ Vagrantfile
 include/version.hpp
 Debug/
 Release/
+.vscode/

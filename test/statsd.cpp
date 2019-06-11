@@ -49,6 +49,7 @@ int main(int argc, char const *argv[])
             if (n > 0)
             {
                 mesg[n] = 0;
+                std::cout << mesg << std::endl;
 
                 switch (i)
                 {
@@ -89,6 +90,10 @@ int main(int argc, char const *argv[])
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     statsd::open("127.0.0.1");
+
+    std::vector<std::string> vect{} ;
+    vect.push_back( std::string("version=")+statsd::version()); 
+    statsd::setGlobalTags(vect);
 
     test_assert_equal(
         statsd::normalize("test.server@http:error|404"),

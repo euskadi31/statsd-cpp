@@ -94,9 +94,16 @@ public:
     /**
     * setPrefix
     * 
-    * @param prefix           The prefix to prepend
+    * @param prefix         The prefix to prepend
     */
     static void setPrefix(const std::string& _prefix);
+
+    /**
+     * setGlobalTags
+     * 
+     * @param global_tags   The global tags
+     */
+    static void setGlobalTags(std::vector<std::string> global_tags);
 
     /**
      * Close socket
@@ -123,6 +130,7 @@ public:
     static std::string prepare(
         const std::string& key,
         const int64_t value,
+        const std::vector<std::string> tags,
         const float sample_rate,
         const std::string& unit
     );
@@ -144,7 +152,7 @@ private:
 
     static statsd_t info;
     static std::string prefix;
-	
+	static std::string global_tags_str;
 
     /**
      * Send

@@ -18,6 +18,7 @@
 
 #include <random>
 #include <iostream>
+#include <sstream> // for ostringstream
 #include <version.hpp>
 
 #ifdef _WIN32
@@ -32,6 +33,8 @@
 
 statsd::statsd_t statsd::info;
 std::string statsd::prefix;
+std::string statsd::global_tags_str;
+
 
 static std::random_device rd; // random device engine, usually based on /dev/random on UNIX-like systems  
 static std::mt19937 generator(rd()); // initialize Mersennes' twister using rd to generate the seed
@@ -135,6 +138,19 @@ void statsd::setPrefix(const std::string& _prefix) {
 	prefix = _prefix;
 }
 
+void statsd::setGlobalTags(std::vector<std::string> global_tags){
+    std::ostringstream tagstream;
+    std::vector<std::string>::iterator it = global_tags.begin();
+    if (it != global_tags.end()) {
+        tagstream << *it++;
+    }
+    for ( ; it != global_tags.end() ; it++) {
+    tagstream << "," << *it;
+    }
+    global_tags_str = tagstream.str();
+}
+
+const std::vector<std::string> empty_tags;
 
 void statsd::send(
     const std::string& key,
@@ -153,7 +169,7 @@ void statsd::send(
         return;
     }
 
-    std::string message = prepare(key, value, sample_rate, unit);
+    std::string message = prepare(key, value,empty_tags, sample_rate, unit);
 
     if (sendto(
         info.sock,
@@ -202,16 +218,37 @@ std::string statsd::normalize(const std::string& key)
 std::string statsd::prepare(
     const std::string& key,
     const int64_t value,
+    const std::vector<std::string> tags,
     const float sample_rate,
     const std::string& unit
 )
 {
+    bool tagging = false;
     std::ostringstream out;
-    out << prefix <<  normalize(key) << ":" << value << "|" << unit;
 
+    out << prefix <<  normalize(key) << ":" << value << "|" << unit;
     if (sample_rate != 1.0)
     {
         out << "|@" << std::setprecision(1) << sample_rate;
+    }
+
+    if (tags.size()) {
+      tagging = true;
+      // TODO: remove newlines from the tags.
+      auto it = tags.begin();
+      out << "|#" << *it++;
+      for( ; it != tags.end() ; ++it) {
+        out << "," << *it;
+      }
+    }
+
+    if (!global_tags_str.empty()) {
+      if (!tagging) {
+        out << "|#" ;
+      } else {
+        out << "," ;
+      }
+      out << global_tags_str;
     }
 
     return out.str();
