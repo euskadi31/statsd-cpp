@@ -9,7 +9,14 @@
 #pragma once
 
 #include <string>
+#include <random>
+
+#ifdef _WIN32
+#include <Winsock2.h>
+#else
 #include <netinet/in.h>
+#endif
+
 
 #ifdef DEBUG
 # include <iostream>
@@ -83,6 +90,14 @@ public:
      */
     static void set(const std::string& key, const int64_t value, const float sample_rate = 1.0);
 
+
+    /**
+    * setPrefix
+    * 
+    * @param prefix           The prefix to prepend
+    */
+    static void setPrefix(const std::string& _prefix);
+
     /**
      * Close socket
      */
@@ -128,6 +143,8 @@ private:
     };
 
     static statsd_t info;
+    static std::string prefix;
+	
 
     /**
      * Send

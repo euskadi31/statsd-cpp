@@ -7,19 +7,31 @@
  * file that was distributed with this source code.
  */
 #include <sys/types.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netdb.h>
+
 #include <time.h>
-#include <unistd.h>
-#include <version.hpp>
 #include <statsd.hpp>
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
 #include <iomanip>
+#include <string>
 
-statsd::statsd_t statsd::info;
+#include <random>
+#include <iostream>
+#include <version.hpp>
+
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#include <Winsock2.h>
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
+#endif
+
+static std::random_device rd; // random device engine, usually based on /dev/random on UNIX-like systems  
+static std::mt19937 generator(rd()); // initialize Mersennes' twister using rd to generate the seed
 
 void statsd::open(const std::string& host, int16_t port)
 {
@@ -60,13 +72,15 @@ void statsd::open(const std::string& host, int16_t port)
 
         freeaddrinfo(result);
 
+    #ifdef _WIN32
+        if (InetPton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0)
+    #else
         if (inet_aton(host.c_str(), &(info.server).sin_addr) == 0)
+    #endif
         {
             statsd_error("StatsD: fail inet_aton");
             return;
         }
-
-        srandom(static_cast<unsigned int>(time(nullptr)));
     }
 }
 
@@ -104,10 +118,20 @@ void statsd::close()
 {
     if (info.sock != -1)
     {
+        #ifdef _WIN32
+        closesocket(info.sock);
+        #else
         ::close(info.sock);
+        #endif
+		
         info.sock = -1;
     }
 }
+
+void statsd::setPrefix(const std::string& _prefix) {
+	prefix = _prefix;
+}
+
 
 void statsd::send(
     const std::string& key,
@@ -145,7 +169,7 @@ bool statsd::should_send(const float sample_rate)
 {
     if (sample_rate < 1.0)
     {
-        return (sample_rate > static_cast<float>(random() / RAND_MAX));
+        return (sample_rate > static_cast<float>(generator() / 4294967295));
     }
     else
     {
@@ -180,7 +204,7 @@ std::string statsd::prepare(
 )
 {
     std::ostringstream out;
-    out << normalize(key) << ":" << value << "|" << unit;
+    out << prefix <<  normalize(key) << ":" << value << "|" << unit;
 
     if (sample_rate != 1.0)
     {
