@@ -30,6 +30,9 @@
 #include <netdb.h>
 #endif
 
+statsd::statsd_t statsd::info;
+std::string statsd::prefix;
+
 static std::random_device rd; // random device engine, usually based on /dev/random on UNIX-like systems  
 static std::mt19937 generator(rd()); // initialize Mersennes' twister using rd to generate the seed
 
