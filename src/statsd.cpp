@@ -39,15 +39,24 @@ std::string statsd::global_tags_str;
 static std::random_device rd; // random device engine, usually based on /dev/random on UNIX-like systems  
 static std::mt19937 generator(rd()); // initialize Mersennes' twister using rd to generate the seed
 
-void statsd::open(const std::string& host, int16_t port)
+int statsd::open(const std::string& host, int16_t port, int mode)
 {
     if (info.sock == -1)
     {
-
-        if ((info.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+        int proto;
+        if (mode == SOCK_STREAM){
+            proto = IPPROTO_TCP;
+			info.type = SOCK_STREAM;
+        } else  {
+            proto = IPPROTO_UDP;
+			info.type = SOCK_DGRAM;
+        }
+        
+		info.sock = socket(AF_INET, info.type, proto);
+        if (info.sock == 0)
         {
-            statsd_error("StatsD: fail socket");
-            return;
+            statsd_error("fail socket create");
+            return 1;
         }
 
         memset(&info.server, 0, sizeof(info.server));
@@ -60,14 +69,13 @@ void statsd::open(const std::string& host, int16_t port)
         memset(&hints, 0, sizeof(hints));
 
         hints.ai_family     = AF_INET;
-        hints.ai_socktype   = SOCK_DGRAM;
+        hints.ai_socktype   = info.type;
 
-        int error;
-
-        if ((error = getaddrinfo(host.c_str(), nullptr, &hints, &result)))
+        int error = getaddrinfo(host.c_str(), nullptr, &hints, &result);
+        if (error != 0 )
         {
-            statsd_error("StatsD: " + gai_strerror(error));
-            return;
+            statsd_error(gai_strerror(error));
+            return error;
         }
 
         memcpy(
@@ -78,16 +86,21 @@ void statsd::open(const std::string& host, int16_t port)
 
         freeaddrinfo(result);
 
-    #ifdef _WIN32
-        if (InetPton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0)
-    #else
-        if (inet_aton(host.c_str(), &(info.server).sin_addr) == 0)
-    #endif
-        {
-            statsd_error("StatsD: fail inet_aton");
-            return;
+        if (inet_pton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0)
+            {
+                statsd_error("fail inet_pton");
+                return 2;
+            } 
+
+        if (mode == SOCK_STREAM){
+            if (connect(info.sock, (struct sockaddr *)&info.server, sizeof(info.server)) < 0) 
+            { 
+                statsd_error("fail connect");
+                return 3; 
+            } 
         }
     }
+	return 4;
 }
 
 void statsd::timing(const std::string& key, const int64_t value, const float sample_rate)
@@ -161,6 +174,8 @@ void statsd::send(
 {
     if (info.sock == -1)
     {
+		statsd_error("fail sendto socket not created");
+
         return;
     }
 
@@ -171,17 +186,31 @@ void statsd::send(
 
     std::string message = prepare(key, value,empty_tags, sample_rate, unit);
 
-    if (sendto(
-        info.sock,
-        message.c_str(),
-        message.length(),
-        0,
-        (struct sockaddr *)&info.server,
-        sizeof(info.server)
-    ) == -1)
-    {
-        statsd_error("StatsD: fail sendto");
-    }
+	if (info.type == SOCK_STREAM) {
+		if (::send(
+			info.sock,
+			message.c_str(),
+			message.length(),
+			0) == -1)
+		{
+			statsd_error("fail send");
+		}
+	}
+	else {
+		if (sendto(
+			info.sock,
+			message.c_str(),
+			message.length(),
+			0,
+			(struct sockaddr *)&info.server,
+			sizeof(info.server)
+		) == -1)
+		{
+			statsd_error("fail sendto");
+		}
+	}
+
+    
 }
 
 bool statsd::should_send(const float sample_rate)
@@ -250,6 +279,8 @@ std::string statsd::prepare(
       }
       out << global_tags_str;
     }
+
+    out << "\n";
 
     return out.str();
 }

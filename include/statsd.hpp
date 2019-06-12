@@ -10,6 +10,7 @@
 
 #include <string>
 #include <random>
+# include <iostream>
 
 #ifdef _WIN32
 #include <Winsock2.h>
@@ -17,26 +18,22 @@
 #include <netinet/in.h>
 #endif
 
-
-#ifdef DEBUG
-# include <iostream>
 # define statsd_error(message) \
-    std::cerr << "StatsD: " << message << std::endl;
-#else
-# define statsd_error(message)
-#endif
+	std::cerr << "StatsD: " << message << std::endl;
 
 class statsd
 {
 public:
 
     /**
-     * Open udp socket
+     * Open udp/tcp socket
      *
      * @param host The host of StatsD server
-     * @param port The port of StatsD server
-     */
-    static void open(const std::string& host, int16_t port = 8125);
+	 * @param port The port of StatsD server
+	 * @param mode SOCK_DGRAM/SOCK_STREAM for UDP/TCP
+	 * return int  0 for success.
+	 */
+    static int open(const std::string& host, int16_t port = 8125, int mode = SOCK_DGRAM);
 
     /**
      * Log timing information
@@ -148,6 +145,7 @@ private:
     {
         struct sockaddr_in server = {};
         int sock = -1;
+		int type = SOCK_DGRAM;
     };
 
     static statsd_t info;
