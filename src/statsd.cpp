@@ -53,8 +53,7 @@ int statsd::open(const std::string& host, int16_t port, int mode)
         }
         
 		info.sock = socket(AF_INET, info.type, proto);
-        if (info.sock == 0)
-        {
+        if (info.sock == 0){
             statsd_error("fail socket create");
             return 1;
         }
@@ -72,8 +71,7 @@ int statsd::open(const std::string& host, int16_t port, int mode)
         hints.ai_socktype   = info.type;
 
         int error = getaddrinfo(host.c_str(), nullptr, &hints, &result);
-        if (error != 0 )
-        {
+        if (error != 0 ){
             statsd_error(gai_strerror(error));
             return error;
         }
@@ -86,19 +84,18 @@ int statsd::open(const std::string& host, int16_t port, int mode)
 
         freeaddrinfo(result);
 
-        if (inet_pton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0)
-            {
+        if (inet_pton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0){
                 statsd_error("fail inet_pton");
                 return 2;
-            } 
+        } 
 
         if (mode == SOCK_STREAM){
-            if (connect(info.sock, (struct sockaddr *)&info.server, sizeof(info.server)) < 0) 
-            { 
+            if (connect(info.sock, (struct sockaddr *)&info.server, sizeof(info.server)) < 0){ 
                 statsd_error("fail connect");
                 return 3; 
             } 
         }
+		return 0;
     }
 	return 4;
 }
