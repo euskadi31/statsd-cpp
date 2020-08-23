@@ -2,24 +2,40 @@ language: cpp
 compiler:
     - clang
     - gcc
-before_install:
-    - sudo apt-get -qq install python-software-properties
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get -qq update
-    - sudo apt-get -qq install gcc-4.8 g++-4.8
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-    - sudo apt-get -qq install valgrind
-    - sudo apt-get -qq install cppcheck
-    - $CXX --version
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
+      - valgrind
+      - cppcheck
+      - build-essential
 env:
     - STATSD_COMPILE_MODE=Debug
     - STATSD_COMPILE_MODE=Release
-script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
-after_script: make lint
+branches:
+  only: 
+    - master
 os:
     - linux
     - osx
+    - windows
 matrix:
     allow_failures:
-        - os: osx
+        - os: windows
+before_install:
+- |-
+    case $TRAVIS_OS_NAME in
+      windows)
+        choco install make cmake cppcheck
+        ;;
+      linux)
+        sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+        sudo ln -s /usr/bin/g++-6 /usr/local/bin/g++
+        ;;
+    esac
+script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
+after_script: make lint
