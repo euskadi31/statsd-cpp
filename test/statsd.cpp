@@ -21,6 +21,8 @@
 #define test_assert_equal(A, B) \
     assert(A == B);
 
+std::vector<std::string> empty_vector;  
+
 int main(int argc, char const *argv[])
 {
     /* Sample UDP server */
@@ -54,22 +56,22 @@ int main(int argc, char const *argv[])
                 switch (i)
                 {
                     case 0:
-                        assert(strcmp(mesg, "test.site.homepage.load:1500|ms") == 0);
+                        assert(strcmp(mesg, "test.site.homepage.load:1500|ms\n") == 0);
                         break;
                     case 1:
-                        assert(strcmp(mesg, "test.server.http.error.404:1|c") == 0);
+                        assert(strcmp(mesg, "test.server.http.error.404:1|c\n") == 0);
                         break;
                     case 2:
-                        assert(strcmp(mesg, "test.server.http.error.404:-1|c") == 0);
+                        assert(strcmp(mesg, "test.server.http.error.404:-1|c\n") == 0);
                         break;
                     case 3:
-                        assert(strcmp(mesg, "test.site.auth.success:4|c") == 0);
+                        assert(strcmp(mesg, "test.site.auth.success:4|c\n") == 0);
                         break;
                     case 4:
-                        assert(strcmp(mesg, "a.gauge.node:8|g") == 0);
+                        assert(strcmp(mesg, "a.gauge.node:8|g\n") == 0);
                         break;
                     case 5:
-                        assert(strcmp(mesg, "a.graphite.set:12|s") == 0);
+                        assert(strcmp(mesg, "a.graphite.set:12|s\n") == 0);
                         break;
                 }
 
@@ -92,27 +94,27 @@ int main(int argc, char const *argv[])
     statsd::open("127.0.0.1");
 
     std::vector<std::string> vect{} ;
-    vect.push_back( std::string("version=")+statsd::version()); 
-    statsd::setGlobalTags(vect);
+    //vect.push_back( std::string("version=")+statsd::version()); 
+    //statsd::setGlobalTags(vect);
 
     test_assert_equal(
         statsd::normalize("test.server@http:error|404"),
         "test.server.http.error.404"
     );
-
+    
     test_assert_equal(
-        statsd::prepare("test.server@http:error|404", 1, 1, "c"),
-        "test.server.http.error.404:1|c"
+        statsd::prepare("test.server@http:error|404", 1, empty_vector, 1, "c"),
+        "test.server.http.error.404:1|c\n"
     );
 
     test_assert_equal(
-        statsd::prepare("test.server@http:error|404", -1, 1, "c"),
-        "test.server.http.error.404:-1|c"
+        statsd::prepare("test.server@http:error|404", -1, empty_vector, 1, "c"),
+        "test.server.http.error.404:-1|c\n"
     );
 
     test_assert_equal(
-        statsd::prepare("test.server@http:error|404", 1, 0.5, "c"),
-        "test.server.http.error.404:1|c|@0.5"
+        statsd::prepare("test.server@http:error|404", 1, empty_vector, 0.5, "c"),
+        "test.server.http.error.404:1|c|@0.5\n"
     );
 
     statsd::timing("test.site.homepage.load", 1500);
