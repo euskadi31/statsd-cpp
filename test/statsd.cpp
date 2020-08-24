@@ -11,12 +11,24 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
 #include <thread>
 #include <chrono>
 #include <iostream>
+
+#ifdef _WIN32
+#pragma comment(lib, "Ws2_32.lib")
+#include <ws2tcpip.h>
+#include <Winsock2.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 #define test_assert_equal(A, B) \
     assert(A == B);
@@ -25,6 +37,17 @@ std::vector<std::string> empty_vector;
 
 int main(int argc, char const *argv[])
 {
+
+    #ifdef _WIN32
+    WSADATA wsaData;
+    // Initialize Winsock version 2.2
+    if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
+        printf("Winsock: WSAStartup failed with error %ld\n", WSAGetLastError());
+        return -1;
+    } else
+        printf("Winsock: The Winsock DLL status is %s.\n", wsaData.szSystemStatus);
+    #endif
+
     /* Sample UDP server */
     std::thread server([]() {
         int sockfd;
@@ -35,7 +58,8 @@ int main(int argc, char const *argv[])
 
         sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-        bzero(&servaddr, sizeof(servaddr));
+        // bzero(&servaddr, sizeof(servaddr));
+        std::memset(&servaddr, '\0',sizeof(servaddr));
         servaddr.sin_family = AF_INET;
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servaddr.sin_port = htons(8125);
@@ -84,7 +108,11 @@ int main(int argc, char const *argv[])
             }
         }
 
+        #ifdef _WIN32
+        closesocket(sockfd);
+        #else
         ::close(sockfd);
+        #endif
     });
 
     std::cout << "StatsD Version : " << statsd::version() << std::endl;

@@ -22,6 +22,7 @@
 #include <version.hpp>
 
 #ifdef _WIN32
+#pragma comment(lib, "Ws2_32.lib")
 #include <ws2tcpip.h>
 #include <Winsock2.h>
 #else

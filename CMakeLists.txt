@@ -43,7 +43,12 @@ add_executable(
     test/statsd.cpp
 )
 
-target_link_libraries(statsd-test statsd pthread)
+IF (WIN32)
+  target_link_libraries(statsd-test statsd_static Ws2_32)
+ELSE()
+  target_link_libraries(statsd-test statsd pthread)
+ENDIF()
+
 
 enable_testing()
 
