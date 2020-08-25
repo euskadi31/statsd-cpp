@@ -145,12 +145,12 @@ private:
     {
         struct sockaddr_in server = {};
         int sock = -1;
-		int type = SOCK_DGRAM;
+	    int type = SOCK_DGRAM;
     };
 
     static statsd_t info;
     static std::string prefix;
-	static std::string global_tags_str;
+    static std::string global_tags_str;
 
     /**
      * Send

@@ -36,7 +36,6 @@ statsd::statsd_t statsd::info;
 std::string statsd::prefix;
 std::string statsd::global_tags_str;
 
-
 static std::random_device rd; // random device engine, usually based on /dev/random on UNIX-like systems  
 static std::mt19937 generator(rd()); // initialize Mersennes' twister using rd to generate the seed
 
@@ -47,13 +46,13 @@ int statsd::open(const std::string& host, int16_t port, int mode)
         int proto;
         if (mode == SOCK_STREAM){
             proto = IPPROTO_TCP;
-			info.type = SOCK_STREAM;
+            info.type = SOCK_STREAM;
         } else  {
             proto = IPPROTO_UDP;
-			info.type = SOCK_DGRAM;
+            info.type = SOCK_DGRAM;
         }
         
-		info.sock = socket(AF_INET, info.type, proto);
+        info.sock = socket(AF_INET, info.type, proto);
         if (info.sock == 0){
             statsd_error("fail socket create");
             return 1;
@@ -96,9 +95,9 @@ int statsd::open(const std::string& host, int16_t port, int mode)
                 return 3; 
             } 
         }
-		return 0;
+        return 0;
     }
-	return 4;
+    return 4;
 }
 
 void statsd::timing(const std::string& key, const int64_t value, const float sample_rate)
@@ -140,13 +139,12 @@ void statsd::close()
         #else
         ::close(info.sock);
         #endif
-		
         info.sock = -1;
     }
 }
 
 void statsd::setPrefix(const std::string& _prefix) {
-	prefix = _prefix;
+    prefix = _prefix;
 }
 
 void statsd::setGlobalTags(std::vector<std::string> global_tags){
@@ -172,8 +170,7 @@ void statsd::send(
 {
     if (info.sock == -1)
     {
-		statsd_error("fail sendto socket not created");
-
+        statsd_error("fail sendto socket not created");
         return;
     }
 
@@ -184,29 +181,29 @@ void statsd::send(
 
     std::string message = prepare(key, value,empty_tags, sample_rate, unit);
 
-	if (info.type == SOCK_STREAM) {
-		if (::send(
-			info.sock,
-			message.c_str(),
-			message.length(),
-			0) == -1)
-		{
-			statsd_error("fail send");
-		}
-	}
-	else {
-		if (sendto(
-			info.sock,
-			message.c_str(),
-			message.length(),
-			0,
-			(struct sockaddr *)&info.server,
-			sizeof(info.server)
-		) == -1)
-		{
-			statsd_error("fail sendto");
-		}
-	}
+    if (info.type == SOCK_STREAM) {
+        if (::send(
+            info.sock,
+            message.c_str(),
+            message.length(),
+            0) == -1)
+        {
+            statsd_error("fail send");
+        }
+    }
+    else {
+        if (sendto(
+            info.sock,
+            message.c_str(),
+            message.length(),
+            0,
+            (struct sockaddr *)&info.server,
+            sizeof(info.server)
+        ) == -1)
+        {
+            statsd_error("fail sendto");
+        }
+    }
 
     
 }
@@ -277,8 +274,6 @@ std::string statsd::prepare(
       }
       out << global_tags_str;
     }
-
-    out << "\n";
 
     return out.str();
 }
