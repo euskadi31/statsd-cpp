@@ -9,27 +9,31 @@
 #pragma once
 
 #include <string>
-#include <netinet/in.h>
-
-#ifdef DEBUG
+#include <random>
 # include <iostream>
-# define statsd_error(message) \
-    std::cerr << "StatsD: " << message << std::endl;
+
+#ifdef _WIN32
+#include <Winsock2.h>
 #else
-# define statsd_error(message)
+#include <netinet/in.h>
 #endif
+
+# define statsd_error(message) \
+	std::cerr << "StatsD: " << message << std::endl;
 
 class statsd
 {
 public:
 
     /**
-     * Open udp socket
+     * Open udp/tcp socket
      *
      * @param host The host of StatsD server
-     * @param port The port of StatsD server
-     */
-    static void open(const std::string& host, int16_t port = 8125);
+	 * @param port The port of StatsD server
+	 * @param mode SOCK_DGRAM/SOCK_STREAM for UDP/TCP
+	 * return int  0 for success.
+	 */
+    static int open(const std::string& host, int16_t port = 8125, int mode = SOCK_DGRAM);
 
     /**
      * Log timing information
@@ -83,6 +87,21 @@ public:
      */
     static void set(const std::string& key, const int64_t value, const float sample_rate = 1.0);
 
+
+    /**
+    * setPrefix
+    * 
+    * @param prefix         The prefix to prepend
+    */
+    static void setPrefix(const std::string& _prefix);
+
+    /**
+     * setGlobalTags
+     * 
+     * @param global_tags   The global tags
+     */
+    static void setGlobalTags(std::vector<std::string> global_tags);
+
     /**
      * Close socket
      */
@@ -108,6 +127,7 @@ public:
     static std::string prepare(
         const std::string& key,
         const int64_t value,
+        const std::vector<std::string> tags,
         const float sample_rate,
         const std::string& unit
     );
@@ -125,9 +145,12 @@ private:
     {
         struct sockaddr_in server = {};
         int sock = -1;
+	    int type = SOCK_DGRAM;
     };
 
     static statsd_t info;
+    static std::string prefix;
+    static std::string global_tags_str;
 
     /**
      * Send

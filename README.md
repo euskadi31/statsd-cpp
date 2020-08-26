@@ -1,7 +1,9 @@
 StatsD client cpp [![Build Status](https://travis-ci.org/euskadi31/statsd-cpp.png)](https://travis-ci.org/euskadi31/statsd-cpp)
 =================
 
-A cpp client for the Etsy StatsD server.
+A cpp client for the StatsD server.
+
+Supported on MacOS, Unix, Windows
 
 Install
 -------

@@ -1,25 +1,50 @@
 language: cpp
-compiler:
-    - clang
-    - gcc
-before_install:
-    - sudo apt-get -qq install python-software-properties
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get -qq update
-    - sudo apt-get -qq install gcc-4.8 g++-4.8
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-    - sudo apt-get -qq install valgrind
-    - sudo apt-get -qq install cppcheck
-    - $CXX --version
 env:
     - STATSD_COMPILE_MODE=Debug
-    - STATSD_COMPILE_MODE=Release
-script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
-after_script: make lint
-os:
-    - linux
-    - osx
+    # - STATSD_COMPILE_MODE=Release
+branches:
+  only: 
+    - master
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
+#      - valgrind
+      - cppcheck
+      - build-essential
+before_install:
+- |-
+    case $TRAVIS_OS_NAME in
+      windows)
+        choco install visualstudio2019buildtools --package-parameters "--includeRecommended --includeOptional"
+        choco install make cmake cppcheck tree visualstudio2017-workload-vctools mingw
+        ;;
+      linux)
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 50
+        ;;
+    esac
 matrix:
-    allow_failures:
-        - os: osx
+  include:
+    - os: linux
+      dist: trusty
+      script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
+      after_script: make lint
+    - os: osx
+      osx_image: xcode10
+      script: make test STATSD_COMPILE_MODE=$STATSD_COMPILE_MODE
+      after_script: make lint
+    - os: windows
+      compiler: msvc19
+      script: 
+        - mkdir build && cd build
+        - cmake -DCMAKE_BUILD_TYPE=$STATSD_COMPILE_MODE  ..
+        - cmake --build .
+        - tree
+        - ./bin/$STATSD_COMPILE_MODE/statsd-test.exe
+  allow_failures:
+        - os: windows

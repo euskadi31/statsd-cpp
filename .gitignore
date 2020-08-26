@@ -8,3 +8,7 @@ build
 .vagrant
 Vagrantfile
 include/version.hpp
+Debug/
+Release/
+.vscode/
+build*
