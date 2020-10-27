@@ -85,8 +85,29 @@ int statsd::open(const std::string& host, int16_t port, int mode)
         freeaddrinfo(result);
 
         if (inet_pton(AF_INET, host.c_str(), &(info.server).sin_addr) == 0){
-                statsd_error("fail inet_pton");
+            // An error code has been returned by inet_pton
+
+            // Specify the criteria for selecting the socket address structure
+            struct addrinfo hints;
+            std::memset(&hints, 0, sizeof(hints));
+            hints.ai_family = AF_INET;
+            hints.ai_socktype = SOCK_DGRAM;
+
+            // Get the address info using the hints
+            struct addrinfo *results = nullptr;
+            const int ret{getaddrinfo(host.c_str(), nullptr, &hints, &results)};
+            if (ret != 0) {
+                // An error code has been returned by getaddrinfo
+                statsd_error("getaddrinfo failed");
                 return 2;
+            }
+
+            // Copy the results in (info.server)
+            struct sockaddr_in *host_addr = (struct sockaddr_in *)results->ai_addr;
+            std::memcpy(&(info.server).sin_addr, &host_addr->sin_addr, sizeof(struct in_addr));
+
+            // Free the memory allocated
+            freeaddrinfo(results);
         } 
 
         if (mode == SOCK_STREAM){
