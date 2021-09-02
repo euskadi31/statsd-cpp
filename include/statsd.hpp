@@ -79,6 +79,24 @@ public:
     static void gauge(const std::string& key, const int64_t value, const float sample_rate = 1.0);
 
     /**
+     * gaugeIncBy
+     *
+     * @param key           The metric(s) to increment
+     * @param value         The increment value
+     * @param sample_rate   The rate (0-1) for sampling.
+     */
+    static void gaugeIncBy(const std::string& key, const int64_t value, const float sample_rate = 1.0);
+
+    /**
+     * gaugeDecBy
+     *
+     * @param key           The metric(s) to decrement
+     * @param value         The decrement value
+     * @param sample_rate   The rate (0-1) for sampling.
+     */
+    static void gaugeDecBy(const std::string& key, const int64_t value, const float sample_rate = 1.0);
+
+    /**
      * Set
      *
      * @param key           The metric(s) to count
@@ -122,6 +140,7 @@ public:
      * @param value         The count value
      * @param sample_rate   The rate (0-1) for sampling.
      * @param unit          The unit value
+     * @param sign          The sign (for gauges)
      * @return              The message
      */
     static std::string prepare(
@@ -129,7 +148,8 @@ public:
         const int64_t value,
         const std::vector<std::string> tags,
         const float sample_rate,
-        const std::string& unit
+        const std::string& unit,
+        const std::string& sign = ""
     );
 
     /**
@@ -159,12 +179,14 @@ private:
      * @param value         The count value
      * @param sample_rate   The rate (0-1) for sampling.
      * @param unit          The unit value
+     * @param sign          The sign (for gauges)
      */
     static void send(
         const std::string& key,
         const int64_t value,
         const float sample_rate,
-        const std::string& unit
+        const std::string& unit,
+        const std::string& sign = ""
     );
 
     /**
