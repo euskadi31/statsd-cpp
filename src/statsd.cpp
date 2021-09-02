@@ -141,6 +141,16 @@ void statsd::count(const std::string& key, const int64_t value, const float samp
     send(key, value, sample_rate, "c");
 }
 
+void statsd::gaugeIncBy(const std::string& key, const int64_t value, const float sample_rate)
+{
+    send(key, value, sample_rate, "g", "+");
+}
+
+void statsd::gaugeDecBy(const std::string& key, const int64_t value, const float sample_rate)
+{
+    send(key, value, sample_rate, "g", "-");
+}
+
 void statsd::gauge(const std::string& key, const int64_t value, const float sample_rate)
 {
     send(key, value, sample_rate, "g");
@@ -186,7 +196,8 @@ void statsd::send(
     const std::string& key,
     const int64_t value,
     const float sample_rate,
-    const std::string& unit
+    const std::string& unit,
+    const std::string& sign
 )
 {
     if (info.sock == -1)
@@ -200,7 +211,7 @@ void statsd::send(
         return;
     }
 
-    std::string message = prepare(key, value,empty_tags, sample_rate, unit);
+    std::string message = prepare(key, value,empty_tags, sample_rate, unit, sign);
 
     if (info.type == SOCK_STREAM) {
         if (::send(
@@ -265,13 +276,14 @@ std::string statsd::prepare(
     const int64_t value,
     const std::vector<std::string> tags,
     const float sample_rate,
-    const std::string& unit
+    const std::string& unit,
+    const std::string& sign
 )
 {
     bool tagging = false;
     std::ostringstream out;
 
-    out << prefix <<  normalize(key) << ":" << value << "|" << unit;
+    out << prefix <<  normalize(key) << ":" << sign << value << "|" << unit;
     if (sample_rate != 1.0)
     {
         out << "|@" << std::setprecision(1) << sample_rate;
