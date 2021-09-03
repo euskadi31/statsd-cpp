@@ -95,6 +95,12 @@ int main(int argc, char const *argv[])
                         assert(strcmp(mesg, "a.gauge.node:8|g") == 0);
                         break;
                     case 5:
+                        assert(strcmp(mesg, "a.gauge.node:+2|g") == 0);
+                        break;
+                    case 6:
+                        assert(strcmp(mesg, "a.gauge.node:-1|g") == 0);
+                        break;
+                    case 7:
                         assert(strcmp(mesg, "a.graphite.set:12|s") == 0);
                         break;
                 }
@@ -102,7 +108,7 @@ int main(int argc, char const *argv[])
                 ++i;
             }
 
-            if (i == 5)
+            if (i > 7)
             {
                 break;
             }
@@ -154,6 +160,10 @@ int main(int argc, char const *argv[])
     statsd::count("test.site.auth.success", 4);
 
     statsd::gauge("a.gauge.node", 8);
+
+    statsd::gaugeIncBy("a.gauge.node", 2);
+
+    statsd::gaugeDecBy("a.gauge.node", 1);
 
     statsd::set("a.graphite.set", 12);
 
