@@ -48,8 +48,10 @@ int main(int argc, char const *argv[])
         printf("Winsock: The Winsock DLL status is %s.\n", wsaData.szSystemStatus);
     #endif
 
+    int status = 0;
+
     /* Sample UDP server */
-    std::thread server([]() {
+    std::thread server([&]() {
         int sockfd;
         ssize_t n;
         struct sockaddr_in servaddr, cliaddr;
@@ -66,6 +68,7 @@ int main(int argc, char const *argv[])
         bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
         int i = 0;
+        int sum = 0;
 
         while (true)
         {
@@ -80,28 +83,36 @@ int main(int argc, char const *argv[])
                 switch (i)
                 {
                     case 0:
-                        assert(strcmp(mesg, "test.site.homepage.load:1500|ms") == 0);
+                        sum += (strcmp(mesg, "test.site.homepage.load:1500|ms") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "test.site.homepage.load:1500|ms") == 0);
                         break;
                     case 1:
-                        assert(strcmp(mesg, "test.server.http.error.404:1|c") == 0);
+                        sum += (strcmp(mesg, "test.server.http.error.404:1|c") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "test.server.http.error.404:1|c") == 0);
                         break;
                     case 2:
-                        assert(strcmp(mesg, "test.server.http.error.404:-1|c") == 0);
+                        sum += (strcmp(mesg, "test.server.http.error.404:-1|c") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "test.server.http.error.404:-1|c") == 0);
                         break;
                     case 3:
-                        assert(strcmp(mesg, "test.site.auth.success:4|c") == 0);
+                        sum += (strcmp(mesg, "test.site.auth.success:4|c") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "test.site.auth.success:4|c") == 0);
                         break;
                     case 4:
-                        assert(strcmp(mesg, "a.gauge.node:8|g") == 0);
+                        sum += (strcmp(mesg, "a.gauge.node:8|g") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "a.gauge.node:8|g") == 0);
                         break;
                     case 5:
+                        //sum += (strcmp(mesg, "a.gauge.node:+2|g") == 0) ? 0 : 1;
                         assert(strcmp(mesg, "a.gauge.node:+2|g") == 0);
                         break;
                     case 6:
-                        assert(strcmp(mesg, "a.gauge.node:-1|g") == 0);
+                        sum += (strcmp(mesg, "a.gauge.node:-1|g") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "a.gauge.node:-2|g") == 0);
                         break;
                     case 7:
-                        assert(strcmp(mesg, "a.graphite.set:12|s") == 0);
+                        sum += (strcmp(mesg, "a.graphite.set:12|s") == 0) ? 0 : 1;
+                        //assert(strcmp(mesg, "a.graphite.set:12|s") == 0);
                         break;
                 }
 
@@ -112,6 +123,10 @@ int main(int argc, char const *argv[])
             {
                 break;
             }
+        }
+
+        if (sum > 0) {
+            status = 1;
         }
 
         #ifdef _WIN32
@@ -171,5 +186,5 @@ int main(int argc, char const *argv[])
 
     server.join();
 
-    return 0;
+    return status;
 }
