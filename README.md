@@ -1,4 +1,4 @@
-StatsD client cpp [![Build Status](https://travis-ci.org/euskadi31/statsd-cpp.png)](https://travis-ci.org/euskadi31/statsd-cpp)
+StatsD client cpp [![CMake](https://github.com/euskadi31/statsd-cpp/actions/workflows/cmake.yml/badge.svg)](https://github.com/euskadi31/statsd-cpp/actions/workflows/cmake.yml)
 =================
 
 A cpp client for the StatsD server.
