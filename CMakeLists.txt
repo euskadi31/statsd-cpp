@@ -44,7 +44,7 @@ add_executable(
 )
 
 IF (WIN32)
-  target_link_libraries(statsd-test statsd_static Ws2_32)
+  target_link_libraries(statsd-test statsd_static ws2_32)
 ELSE()
   target_link_libraries(statsd-test statsd pthread)
 ENDIF()

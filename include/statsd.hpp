@@ -13,7 +13,7 @@
 # include <iostream>
 
 #ifdef _WIN32
-#include <Winsock2.h>
+#include <winsock2.h>
 #else
 #include <netinet/in.h>
 #endif
