@@ -22,9 +22,9 @@
 #include <version.hpp>
 
 #ifdef _WIN32
-#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib")
 #include <ws2tcpip.h>
-#include <Winsock2.h>
+#include <winsock2.h>
 #else
 #include <arpa/inet.h>
 #include <sys/socket.h>
