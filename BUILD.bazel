@@ -1,0 +1,20 @@
+licenses(["notice"]) # MIT
+
+exports_files(["LICENSE.md"])
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "statsd",
+    srcs = ["src/statsd.cpp"],
+    hdrs = ["include/statsd.hpp", "include/version.hpp"],
+    copts = ["-Iinclude"],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "statsd-test",
+    srcs = ["test/statsd.cpp"],
+    copts = ["-Iinclude"],
+    deps = ["//:statsd"]
+)

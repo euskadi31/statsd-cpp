@@ -11,4 +11,5 @@ include/version.hpp
 Debug/
 Release/
 .vscode/
-build*
+build/*
+bazel-*
