@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: statsd-cpp
+Description: statsd-cpp
+Version: @STATSD_VERSION@
+
+Libs: -L${libdir} -lstatsd_static @ADDITIONAL_LIBS@
+Cflags: -I${includedir}
