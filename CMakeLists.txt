@@ -6,7 +6,7 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 ##
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.27)
 
 project(StatsD CXX)
 
@@ -44,11 +44,11 @@ add_executable(
 )
 
 IF (WIN32)
-  target_link_libraries(statsd-test statsd_static Ws2_32)
+  target_link_libraries(statsd ws2_32)
+  target_link_libraries(statsd-test statsd_static ws2_32)
 ELSE()
   target_link_libraries(statsd-test statsd pthread)
 ENDIF()
-
 
 enable_testing()
 
@@ -69,3 +69,19 @@ install(TARGETS statsd_static statsd
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+
+# Configure pkg-config file
+set(ADDITIONAL_LIBS "")
+if (WIN32)
+    set(ADDITIONAL_LIBS "-lws2_32")
+endif()
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/statsd-cpp.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/statsd-cpp.pc
+    @ONLY
+)
+
+# Install pkg-config file
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statsd-cpp.pc
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
